@@ -44,13 +44,17 @@ void AMyCharacter::BeginPlay()
 	
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(),0);
 	//Cast<APlayerController>(GetController()); -> 용도에 맞게 위 아래중 하나 선택
-
-	UEnhancedInputLocalPlayerSubsystem* LocalPlayerSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
-	if (LocalPlayerSystem && DefaultMappingContext)
+	if (PC)
 	{
-		LocalPlayerSystem->AddMappingContext(DefaultMappingContext, 0);
+		UEnhancedInputLocalPlayerSubsystem* LocalPlayerSystem
+			= ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+
+		if (LocalPlayerSystem && DefaultMappingContext)
+		{
+			LocalPlayerSystem->AddMappingContext(DefaultMappingContext, 0);
+		}
 	}
-	
+
 }
 
 // Called every frame
@@ -72,7 +76,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		
 		EnhancedInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
 		EnhancedInputComponent->BindAction(IA_MoveForwardAndRight, ETriggerEvent::Triggered, this, &AMyCharacter::MoveForwardAndRight);
-		EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &AMyCharacter::JumpUp);
+		EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Triggered, this, &AMyCharacter::DoCrouch);
+		EnhancedInputComponent->BindAction(IA_Dead, ETriggerEvent::Triggered, this, &AMyCharacter::DoDead);
 
 
 	}
@@ -106,7 +111,7 @@ void AMyCharacter::MoveForwardAndRight(const FInputActionValue& Value)
 }
 
 void AMyCharacter::Look(const FInputActionValue& Value)
-{
+{\
 	FVector2D CameraVector = Value.Get<FVector2D>();
 
 	//마우스 위아래로 이동하기 위해 Y
@@ -115,9 +120,28 @@ void AMyCharacter::Look(const FInputActionValue& Value)
 
 }
 
-void AMyCharacter::JumpUp(const FInputActionValue& Value)
+void AMyCharacter::DoCrouch(const FInputActionValue& Value)
 {
-	Jump();
-	UE_LOG(LogTemp, Display, TEXT("Jump"));
+	if (CanCrouch())
+	{
+		Crouch();
+	}
+	else
+	{
+		UnCrouch();
+	}
 }
+
+void AMyCharacter::DoDead(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Dead"));
+	//캐릭터에 들어가있음 (mesh->GetAnimInstance()에서 들고옴) -> PlayAnimMondage
+	//C언어의 Printf,  1~3 (1,2,3)을 뽑아냄 %d에 들어간다.
+	FString SectionName = FString::Printf(TEXT("Death%d"), FMath::RandRange(1, 3));
+
+	//FName(*SectionName));
+	PlayAnimMontage(AnimMontage, 1.0f, FName(*SectionName));
+}
+
+
 

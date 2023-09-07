@@ -2,6 +2,7 @@
 
 
 #include "MyAnimInstance.h"
+#include "MyCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -9,12 +10,17 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	APawn* MyPawn = TryGetPawnOwner();
-	//dynamic_cast로 해야하는데 언리얼에서는 Cast로 제공.
-	ACharacter * MyCharacter = Cast<ACharacter>(MyPawn);
-	if (MyCharacter)
+	AMyCharacter* Pawn = Cast<AMyCharacter>(TryGetPawnOwner());
+	if (Pawn)
 	{
-		//뛰는데 위아래는 필요 없으니 2D, SizeSquared2D는 루트를 빼는것.  루트가 많이느리다.
-		Speed = MyCharacter->GetCharacterMovement()->Velocity.SizeSquared2D();
+		Speed = Pawn->GetCharacterMovement()->Velocity.SizeSquared2D();
+
+		//자동으로 회전값 적용 CalculateDirection
+		Direction = CalculateDirection (Pawn->GetCharacterMovement()->Velocity, Pawn->GetActorRotation());
+
+		//IsCrouching (앉은 상태)
+		//IsCrouched 앉을 수 있는가;
+		
+		bIsCrouch = Pawn->bIsCrouched;
 	}
 }

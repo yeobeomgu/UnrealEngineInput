@@ -48,11 +48,23 @@ public:
 	class UInputAction* IA_Look;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	class UInputAction* IA_Jump;
+	class UInputAction* IA_Crouch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	class UInputAction* IA_Dead;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
+	class UAnimMontage* AnimMontage;
+
 
 	void MoveForwardAndRight(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	void JumpUp(const FInputActionValue& Value);
 
+	void Look(const FInputActionValue& Value);
+
+	void DoCrouch(const FInputActionValue& Value);
+
+	void DoDead(const FInputActionValue& Value);
+
+	
 
 };
